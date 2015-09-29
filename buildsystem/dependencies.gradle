@@ -1,0 +1,99 @@
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+ext {
+    //Android
+    androidBuildToolsVersion = "23.0.1"
+    androidMinSdkVersion = 15
+    androidTargetSdkVersion = 23
+    androidCompileSdkVersion = 23
+
+    //Libraries
+    daggerVersion = "2.0"
+    butterKnifeVersion = "7.0.1"
+    supportVersion = "23.0.1"
+    rxJavaVersion = "1.0.14"
+    rxAndroidVersion = "1.0.1"
+    javaxAnnotationVersion = "10.0-b28"
+    gsonVersion = "2.3"
+    okHttpVersion = "2.5.0"
+    nucleusVersion = "2.0.1"
+    icepickVersion = "3.1.0"
+
+    //Testing
+    robolectricVersion = "3.0"
+    jUnitVersion = "4.12"
+    assertJVersion = "1.7.1"
+    mockitoVersion = "1.9.5"
+    dexmakerVersion = "1.0"
+    espressoVersion = "2.0"
+    testingSupportLibVersion = "0.1"
+
+    presentationDependencies = [
+            appcompat         : "com.android.support:appcompat-v7:${supportVersion}",
+            recyclerView      : "com.android.support:recyclerview-v7:${supportVersion}",
+            cardview          : "com.android.support:cardview-v7:${supportVersion}",
+            design            : "com.android.support:design:${supportVersion}",
+            supportAnnotations: "com.android.support:support-annotations:${supportVersion}",
+            gridlayout        : "com.android.support:gridlayout-v7:${supportVersion}",
+
+            nucleus           : "info.android15.nucleus:nucleus:${nucleusVersion}",
+            nucleusV4         : "info.android15.nucleus:nucleus-support-v4:${nucleusVersion}",
+            nucleusV7         : "info.android15.nucleus:nucleus-support-v7:${nucleusVersion}",
+
+            icepick           : "frankiesardo:icepick:${icepickVersion}",
+            icepickProcessor  : "frankiesardo:icepick-processor:${icepickVersion}",
+
+            daggerCompiler    : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger            : "com.google.dagger:dagger:${daggerVersion}",
+            butterKnife       : "com.jakewharton:butterknife:${butterKnifeVersion}",
+            rxJava            : "io.reactivex:rxjava:${rxJavaVersion}",
+            rxAndroid         : "io.reactivex:rxandroid:${rxAndroidVersion}",
+            javaxAnnotation   : "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+    ]
+
+    presentationTestDependencies = [
+            mockito          : "org.mockito:mockito-core:${mockitoVersion}",
+            dexmaker         : "com.google.dexmaker:dexmaker:${dexmakerVersion}",
+            dexmakerMockito  : "com.google.dexmaker:dexmaker-mockito:${dexmakerVersion}",
+            espresso         : "com.android.support.test.espresso:espresso-core:${espressoVersion}",
+            testingSupportLib: "com.android.support.test:testing-support-lib:${testingSupportLibVersion}",
+    ]
+
+    libraryDependencies = [
+            appcompat: "com.android.support:appcompat-v7:${supportVersion}",
+    ]
+
+    domainDependencies = [
+            daggerCompiler : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger         : "com.google.dagger:dagger:${daggerVersion}",
+            javaxAnnotation: "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+            rxJava         : "io.reactivex:rxjava:${rxJavaVersion}",
+    ]
+
+    domainTestDependencies = [
+            junit  : "junit:junit:${jUnitVersion}",
+            mockito: "org.mockito:mockito-core:${mockitoVersion}",
+    ]
+
+    dataDependencies = [
+            daggerCompiler    : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger            : "com.google.dagger:dagger:${daggerVersion}",
+            okHttp            : "com.squareup.okhttp:okhttp:${okHttpVersion}",
+            gson              : "com.google.code.gson:gson:${gsonVersion}",
+            rxJava            : "io.reactivex:rxjava:${rxJavaVersion}",
+            rxAndroid         : "io.reactivex:rxandroid:${rxAndroidVersion}",
+            javaxAnnotation   : "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+            androidAnnotations: "com.android.support:support-annotations:${supportVersion}"
+    ]
+
+    dataTestDependencies = [
+            junit      : "junit:junit:${jUnitVersion}",
+            assertj    : "org.assertj:assertj-core:${assertJVersion}",
+            mockito    : "org.mockito:mockito-core:${mockitoVersion}",
+            robolectric: "org.robolectric:robolectric:${robolectricVersion}",
+    ]
+}

@@ -1,0 +1,12 @@
+apply plugin: "war"
+if (!project.plugins.findPlugin(org.akhikhl.gretty.GrettyPlugin))
+    project.apply(plugin: org.akhikhl.gretty.GrettyPlugin)
+gretty {
+    debugPort = 5005      // default
+    debugSuspend = true   // default
+    managedClassReload=true
+}
+
+dependencies {
+    compile "mysql:mysql-connector-java:5.1.34"
+}

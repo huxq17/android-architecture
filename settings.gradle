@@ -1,0 +1,3 @@
+include ':data', ':library', ':presentationUser', ':presentationManager'
+include ':domain'
+include ':service'
