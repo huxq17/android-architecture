@@ -11,16 +11,10 @@ import java.sql.SQLException;
  * Created by <a href="http://www.jiechic.com" target="_blank">jiechic</a> on 15/9/29.
  */
 public class LoginServlet extends BaseServlet {
+
+
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (!isConnected()){
-            connectDB();
-        }
-        try {
-            ResultSet set=stmt.executeQuery("select * from user");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        resp.getWriter().print("Hello world测试");
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
     }
 }

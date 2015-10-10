@@ -2,10 +2,10 @@ package com.jiechic.android.architecutre.service.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.*;
 
 /**
  * Created by <a href="http://www.jiechic.com" target="_blank">jiechic</a> on 15/9/29.
@@ -13,7 +13,6 @@ import java.sql.Statement;
 public class BaseServlet extends HttpServlet {
 
     protected static Connection conn;
-    protected static Statement stmt;
 
     @Override
     public void init() throws ServletException {
@@ -23,9 +22,17 @@ public class BaseServlet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!isConnected()) {
+            connectDB();
+        }
+        super.service(req, resp);
+    }
+
     protected boolean isConnected() {
         try {
-            if (conn != null && !conn.isClosed() && stmt != null && !stmt.isClosed()) {
+            if (conn != null && !conn.isClosed()) {
                 return true;
             } else {
                 return false;
@@ -45,20 +52,17 @@ public class BaseServlet extends HttpServlet {
             System.out.println("找不到MySQL驱动!");
             e1.printStackTrace();
         }
-
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
-            String url = "jdbc:mysql://db4free.net:3306/chamqion";    //JDBC的URL
+
+            String url = "jdbc:mysql://localhost:3306/chamqion";    //JDBC的URL
             //调用DriverManager对象的getConnection()方法，获得一个Connection对象
-            conn = DriverManager.getConnection(url, "chamqion", "2812911");
+            conn = DriverManager.getConnection(url, "chamqion", "1234567890");
 
-            if (stmt != null && !stmt.isClosed()) {
-                stmt.close();
-            }
-            stmt = conn.createStatement(); //创建Statement对象
 
+            System.out.println("成功连接数据库");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,9 +72,6 @@ public class BaseServlet extends HttpServlet {
     public void destroy() {
         super.destroy();
         try {
-            if (stmt != null && !stmt.isClosed()) {
-                stmt.close();
-            }
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
