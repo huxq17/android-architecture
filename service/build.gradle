@@ -9,4 +9,5 @@ gretty {
 
 dependencies {
     compile "mysql:mysql-connector-java:5.1.34"
+    compile 'org.json:org.json:2.0'
 }

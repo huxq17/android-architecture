@@ -61,8 +61,19 @@ public class BaseServlet extends HttpServlet {
             //调用DriverManager对象的getConnection()方法，获得一个Connection对象
             conn = DriverManager.getConnection(url, "chamqion", "1234567890");
 
-
             System.out.println("成功连接数据库");
+
+            Statement stat=conn.createStatement();
+            stat.execute("CREATE TABLE if not exists user\n" +
+                    "(\n" +
+                    "   id           int(11) UNSIGNED primary key not null auto_increment,\n" +
+                    "   login        varchar(32),\n" +
+                    "   name         varchar(32),\n" +
+                    "   password     varchar(36),\n" +
+                    "   is_manager   tinyint(1) NOT NULL DEFAULT 0,\n" +
+                    "   create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP \n" +
+                    ");");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
