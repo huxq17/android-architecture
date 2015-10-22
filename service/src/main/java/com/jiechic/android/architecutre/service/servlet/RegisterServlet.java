@@ -64,8 +64,8 @@ public class RegisterServlet extends BaseServlet {
                         try {
                             jsonObject.put("id", resultSet.getString("id"));
                             jsonObject.put("login", resultSet.getString("login"));
-                            jsonObject.put("create_time",resultSet.getTimestamp("create_time"));
-                            jsonObject.put("is_manager",resultSet.getBoolean("create_time"));
+                            jsonObject.put("create_time",resultSet.getTimestamp("create_time").getTime());
+                            jsonObject.put("is_manager",resultSet.getBoolean("is_manager"));
                             resp.getWriter().print(ResultHandler.Success(jsonObject));
                         } catch (JSONException e) {
                             e.printStackTrace();

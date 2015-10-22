@@ -44,16 +44,32 @@ public class LoginServlet extends BaseServlet {
             if (resultSet.next()) {
                 String tempPassword=resultSet.getString("password");
                 if (password.equals(tempPassword)){
-                    JSONObject jsonObject=new JSONObject();
-                    try {
-                        jsonObject.put("id", resultSet.getString("id"));
-                        jsonObject.put("login", resultSet.getString("login"));
-                        jsonObject.put("create_time",resultSet.getTimestamp("create_time"));
-                        jsonObject.put("is_manager",resultSet.getBoolean("create_time"));
-                        resp.getWriter().print(ResultHandler.Success(jsonObject));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        resp.getWriter().print(ResultHandler.Success(null));
+                    String id=resultSet.getString("id");
+                    resultSet.close();
+                    prestmt.close();
+                    prestmt = conn.prepareStatement("SELECT * FROM user_info where id=?");
+                    prestmt.setString(1, id);
+                    resultSet=prestmt.executeQuery();
+                    if (resultSet.next()){
+                        JSONObject jsonObject=new JSONObject();
+                        try {
+                            jsonObject.put("id", resultSet.getString("id"));
+                            jsonObject.put("name", resultSet.getString("name"));
+                            jsonObject.put("nickname",resultSet.getString("nickname"));
+                            resp.getWriter().print(ResultHandler.Success(jsonObject));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            resp.getWriter().print(ResultHandler.Success(null));
+                        }
+                    }else{
+                        JSONObject jsonObject=new JSONObject();
+                        try {
+                            jsonObject.put("id", id);
+                            resp.getWriter().print(ResultHandler.Success(jsonObject));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            resp.getWriter().print(ResultHandler.Success(null));
+                        }
                     }
                 }else{
                     resp.getWriter().print(ResultHandler.Fail(-1, "Account Password is wrong"));

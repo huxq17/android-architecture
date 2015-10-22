@@ -64,15 +64,28 @@ public class BaseServlet extends HttpServlet {
             System.out.println("成功连接数据库");
 
             Statement stat=conn.createStatement();
+            //用户表
             stat.execute("CREATE TABLE if not exists user\n" +
                     "(\n" +
-                    "   id           int(11) UNSIGNED primary key not null auto_increment,\n" +
-                    "   login        varchar(32),\n" +
-                    "   name         varchar(32),\n" +
-                    "   password     varchar(36),\n" +
-                    "   is_manager   tinyint(1) NOT NULL DEFAULT 0,\n" +
-                    "   create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP \n" +
+                    "id           int(11) UNSIGNED primary key not null auto_increment,\n" +
+                    "login        varchar(32) COMMENT '登陆名',\n" +
+                    "password     varchar(36) COMMENT '密码',\n" +
+                    "is_manager   tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否管理员',\n" +
+                    "create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间' \n" +
                     ");");
+            //用户信息表
+            stat.execute("CREATE TABLE if not exists user_info\n" +
+                    "(\n" +
+                    "id           int(11) UNSIGNED primary key not null ,\n" +
+                    "name         VARCHAR(32) COMMENT '姓名',\n" +
+                    "nickname     VARCHAR(32) COMMENT '昵称',\n" +
+                    "sex          int(4) DEFAULT 0 COMMENT '性别:0 未知，1 男，2 女',\n" +
+                    "birthday     VARCHAR(16) COMMENT '生日，格式 yyyy-MM-dd',\n" +
+                    "qq           VARCHAR(32) COMMENT 'QQ号',\n" +
+                    "email        VARCHAR (64) COMMENT '邮件地址',\n" +
+                    "phone        VARCHAR (16) COMMENT '电话号码'\n" +
+                    ");");
+
 
             stat.execute("CREATE TABLE if not exists goods\n" +
                     "(\n"+
