@@ -1,5 +1,8 @@
 package com.jiechic.android.architecutre.service.servlet;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,9 +53,35 @@ public class RegisterServlet extends BaseServlet {
                 prestmt.setString(1, login);
                 prestmt.setString(2, password);
                 prestmt.setBoolean(3, is_manager);
-                prestmt.execute();
-                resp.getWriter().print(ResultHandler.Success(null));
+                if (prestmt.executeUpdate()>0){
+                    prestmt.close();
+                    prestmt = conn.prepareStatement("SELECT * FROM user where login=?");
+                    prestmt.setString(1, login);
+                    resultSet.close();
+                    resultSet = prestmt.executeQuery();
+                    if (resultSet.next()){
+                        JSONObject jsonObject=new JSONObject();
+                        try {
+                            jsonObject.put("id", resultSet.getString("id"));
+                            jsonObject.put("login", resultSet.getString("login"));
+                            jsonObject.put("create_time",resultSet.getTimestamp("create_time"));
+                            jsonObject.put("is_manager",resultSet.getBoolean("create_time"));
+                            resp.getWriter().print(ResultHandler.Success(jsonObject));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            resp.getWriter().print(ResultHandler.Success(null));
+                        }
+                    }else{
+                        resp.getWriter().print(ResultHandler.Success(null));
+                    }
+                    resultSet.close();
+                    prestmt.close();
+                }else{
+                    prestmt.close();
+                    resp.getWriter().print(ResultHandler.Success(null));
+                }
             }
+            resultSet.close();
         } catch (SQLException e) {
             e.printStackTrace();
             resp.getWriter().print(ResultHandler.Fail(-1, e.getMessage()));

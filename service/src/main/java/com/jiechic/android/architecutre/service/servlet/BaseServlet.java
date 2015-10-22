@@ -74,6 +74,16 @@ public class BaseServlet extends HttpServlet {
                     "   create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP \n" +
                     ");");
 
+            stat.execute("CREATE TABLE if not exists goods\n" +
+                    "(\n"+
+                    "   id             int(11) UNSIGNED primary key not null auto_increment,\n" +
+                    "   name           varchar(64),\n" +
+                    "   count          int(10),\n" +
+                    "   price          double(4, 2),\n" +
+                    "   introduction   varchar(1024),\n" +
+                    "   create_time    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP\n" +
+                    ");");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
