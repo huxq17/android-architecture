@@ -2,6 +2,8 @@ package com.jiechic.android.architecutre.service.servlet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import rx.Observable;
+import rx.Subscriber;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,69 +21,128 @@ public class LoginServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String param_login = req.getParameter("login");
-        String param_password = req.getParameter("password");
-        //判断参数
-        if (param_login == null || param_login.isEmpty()) {
-            resp.getWriter().print(ResultHandler.Fail(-1, "request param login"));
-            return;
-        }
+        Observable.create(new Observable.OnSubscribe<Param>() {
+            //检测参数
+            @Override
+            public void call(Subscriber<? super Param> subscriber) {
+                String param_login = req.getParameter("login");
+                String param_password = req.getParameter("password");
+                //判断参数
+                if (param_login == null || param_login.isEmpty()) {
+                    subscriber.onError(new Throwable("request param login"));
+                    return;
+                }
 
-        if (param_password == null || param_password.isEmpty()) {
-            resp.getWriter().print(ResultHandler.Fail(-1, "request param password"));
-            return;
-        }
-
-        //参数无误，转换参数
-        String login = param_login;
-        String password = param_password;
-
-        PreparedStatement prestmt = null;
-        try {
-            prestmt = conn.prepareStatement("SELECT * FROM user where login=?");
-            prestmt.setString(1, login);
-            ResultSet resultSet = prestmt.executeQuery();
-            if (resultSet.next()) {
-                String tempPassword=resultSet.getString("password");
-                if (password.equals(tempPassword)){
-                    String id=resultSet.getString("id");
+                if (param_password == null || param_password.isEmpty()) {
+                    subscriber.onError(new Throwable("request param password"));
+                    return;
+                }
+                Param param = new Param();
+                param.setLogin(param_login);
+                param.setPassword(param_password);
+                subscriber.onNext(param);
+                subscriber.onCompleted();
+            }
+        }).flatMap(param -> Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                //查验账户
+                try {
+                    PreparedStatement prestmt = conn.prepareStatement("SELECT * FROM user where login=?");
+                    prestmt.setString(1, param.getLogin());
+                    ResultSet resultSet = prestmt.executeQuery();
+                    if (resultSet.next()) {
+                        String password = resultSet.getString("password");
+                        if (!param.getPassword().equals(password)) {
+                            subscriber.onError(new Throwable("Account Password is wrong!"));
+                        } else {
+                            subscriber.onNext(resultSet.getString("id"));
+                            subscriber.onCompleted();
+                        }
+                    } else {
+                        subscriber.onError(new Throwable("Account is not register!"));
+                    }
                     resultSet.close();
                     prestmt.close();
-                    prestmt = conn.prepareStatement("SELECT * FROM user_info where id=?");
-                    prestmt.setString(1, id);
-                    resultSet=prestmt.executeQuery();
-                    if (resultSet.next()){
-                        JSONObject jsonObject=new JSONObject();
-                        try {
-                            jsonObject.put("id", resultSet.getString("id"));
-                            jsonObject.put("name", resultSet.getString("name"));
-                            jsonObject.put("nickname",resultSet.getString("nickname"));
-                            resp.getWriter().print(ResultHandler.Success(jsonObject));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            resp.getWriter().print(ResultHandler.Success(null));
-                        }
-                    }else{
-                        JSONObject jsonObject=new JSONObject();
-                        try {
-                            jsonObject.put("id", id);
-                            resp.getWriter().print(ResultHandler.Success(jsonObject));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            resp.getWriter().print(ResultHandler.Success(null));
-                        }
-                    }
-                }else{
-                    resp.getWriter().print(ResultHandler.Fail(-1, "Account Password is wrong"));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    subscriber.onError(new Throwable("Server have something wrong!"));
                 }
-                prestmt.close();
-            } else {
-                resp.getWriter().print(ResultHandler.Fail(-1, "Account is not register"));
             }
-            resultSet.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            resp.getWriter().print(ResultHandler.Fail(-1, e.getMessage()));
+        })
+        ).flatMap(s -> Observable.create(new Observable.OnSubscribe<JSONObject>() {
+            @Override
+            public void call(Subscriber<? super JSONObject> subscriber) {
+                //查询返回账户信息
+                try {
+                    PreparedStatement prestmt = conn.prepareStatement("SELECT * FROM user_info where id=?");
+                    prestmt.setString(1, s);
+                    ResultSet resultSet = prestmt.executeQuery();
+                    if (resultSet.next()) {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("id", resultSet.getString("id"));
+                        jsonObject.put("name", resultSet.getString("name"));
+                        jsonObject.put("nickname", resultSet.getString("nickname"));
+                        subscriber.onNext(jsonObject);
+                    } else {
+                        subscriber.onNext(new JSONObject());
+                    }
+                    subscriber.onCompleted();
+                    resultSet.close();
+                    prestmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    subscriber.onError(new Throwable("Server have something wrong!"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    subscriber.onError(new Throwable("Server have something wrong!"));
+                }
+            }
+        })
+        ).subscribe(new Subscriber<JSONObject>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                try {
+                    resp.getWriter().print(ResultHandler.Fail(-1,e.getMessage()));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNext(JSONObject jsonObject) {
+                try {
+                    resp.getWriter().print(ResultHandler.Success(jsonObject));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    class Param {
+        private String login;
+        private String password;
+
+        public String getLogin() {
+            return login;
+        }
+
+        public void setLogin(String login) {
+            this.login = login;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
         }
     }
 }
