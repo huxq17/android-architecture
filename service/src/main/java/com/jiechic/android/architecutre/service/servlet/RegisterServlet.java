@@ -6,12 +6,14 @@ import rx.Observable;
 import rx.Subscriber;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by <a href="http://www.jiechic.com" target="_blank">jiechic</a> on 15/9/29.
@@ -75,21 +77,18 @@ public class RegisterServlet extends BaseServlet {
                     conn.setAutoCommit(false);
                     //No changes has been made in the database yet, so now we will commit
                     //the changes.
-                    prestmt = conn.prepareStatement("INSERT INTO user (login, password, is_manager) VALUES (?,?,?);");
+                    prestmt = conn.prepareStatement("INSERT INTO user (login, password, onManager) VALUES (?,?,?);", Statement.RETURN_GENERATED_KEYS);
                     prestmt.setString(1, param.getLogin());
                     prestmt.setString(2, param.getPassword());
                     prestmt.setBoolean(3, param.isManager());
                     prestmt.executeUpdate();
-                    prestmt.close();
-
-                    prestmt = conn.prepareStatement("SELECT id FROM user WHERE login=?;");
-                    prestmt.setString(1, param.getLogin());
-                    ResultSet resultSet = prestmt.executeQuery();
-                    resultSet.next();
-                    int id = resultSet.getInt("id");
+                    ResultSet resultSet = prestmt.getGeneratedKeys();
+                    int id=0;
+                    if (resultSet.next()){
+                        id = resultSet.getInt(1);
+                    }
                     resultSet.close();
                     prestmt.close();
-
                     prestmt = conn.prepareStatement("INSERT INTO user_info (id,name) VALUES (?, ?);");
                     prestmt.setInt(1, id);
                     prestmt.setString(2, param.getLogin());
@@ -97,10 +96,10 @@ public class RegisterServlet extends BaseServlet {
                     prestmt.close();
                     conn.commit();
 
-                    JSONObject jsonObject=new JSONObject();
+                    JSONObject jsonObject = new JSONObject();
                     try {
-                        jsonObject.put("id",id);
-                        jsonObject.put("name",param.getLogin());
+                        jsonObject.put("id", id);
+                        jsonObject.put("name", param.getLogin());
                         subscriber.onNext(jsonObject);
                         subscriber.onCompleted();
                     } catch (JSONException e) {
@@ -115,7 +114,7 @@ public class RegisterServlet extends BaseServlet {
                         e1.printStackTrace();
                     }
                     subscriber.onError(new Throwable("Server have something wrong!"));
-                }finally {
+                } finally {
                     try {
                         conn.setAutoCommit(true);
                     } catch (SQLException e) {
@@ -129,17 +128,23 @@ public class RegisterServlet extends BaseServlet {
             public void onCompleted() {
 
             }
+
             @Override
             public void onError(Throwable e) {
                 try {
-                    resp.getWriter().print(ResultHandler.Fail(-1,e.getMessage()));
+                    resp.getWriter().print(ResultHandler.Fail(-1, e.getMessage()));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
             }
+
             @Override
             public void onNext(JSONObject jsonObject) {
                 try {
+                    Cookie cookie = new Cookie("id", jsonObject.optString("id"));
+                    cookie.setMaxAge(30000);
+                    cookieHashMap.put(jsonObject.optString("id"), cookie);
+                    resp.addCookie(cookie);
                     resp.getWriter().print(ResultHandler.Success(jsonObject));
                 } catch (IOException e) {
                     e.printStackTrace();

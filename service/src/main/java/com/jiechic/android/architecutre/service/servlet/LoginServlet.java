@@ -6,6 +6,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -44,61 +45,61 @@ public class LoginServlet extends BaseServlet {
                 subscriber.onCompleted();
             }
         }).flatMap(param -> Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(Subscriber<? super String> subscriber) {
-                //查验账户
-                try {
-                    PreparedStatement prestmt = conn.prepareStatement("SELECT * FROM user where login=?");
-                    prestmt.setString(1, param.getLogin());
-                    ResultSet resultSet = prestmt.executeQuery();
-                    if (resultSet.next()) {
-                        String password = resultSet.getString("password");
-                        if (!param.getPassword().equals(password)) {
-                            subscriber.onError(new Throwable("Account Password is wrong!"));
-                        } else {
-                            subscriber.onNext(resultSet.getString("id"));
-                            subscriber.onCompleted();
+                    @Override
+                    public void call(Subscriber<? super String> subscriber) {
+                        //查验账户
+                        try {
+                            PreparedStatement prestmt = conn.prepareStatement("SELECT * FROM user where login=?");
+                            prestmt.setString(1, param.getLogin());
+                            ResultSet resultSet = prestmt.executeQuery();
+                            if (resultSet.next()) {
+                                String password = resultSet.getString("password");
+                                if (!param.getPassword().equals(password)) {
+                                    subscriber.onError(new Throwable("Account Password is wrong!"));
+                                } else {
+                                    subscriber.onNext(resultSet.getString("id"));
+                                    subscriber.onCompleted();
+                                }
+                            } else {
+                                subscriber.onError(new Throwable("Account is not register!"));
+                            }
+                            resultSet.close();
+                            prestmt.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            subscriber.onError(new Throwable("Server have something wrong!"));
                         }
-                    } else {
-                        subscriber.onError(new Throwable("Account is not register!"));
                     }
-                    resultSet.close();
-                    prestmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    subscriber.onError(new Throwable("Server have something wrong!"));
-                }
-            }
-        })
+                })
         ).flatMap(s -> Observable.create(new Observable.OnSubscribe<JSONObject>() {
-            @Override
-            public void call(Subscriber<? super JSONObject> subscriber) {
-                //查询返回账户信息
-                try {
-                    PreparedStatement prestmt = conn.prepareStatement("SELECT * FROM user_info where id=?");
-                    prestmt.setString(1, s);
-                    ResultSet resultSet = prestmt.executeQuery();
-                    if (resultSet.next()) {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("id", resultSet.getString("id"));
-                        jsonObject.put("name", resultSet.getString("name"));
-                        jsonObject.put("nickname", resultSet.getString("nickname"));
-                        subscriber.onNext(jsonObject);
-                    } else {
-                        subscriber.onNext(new JSONObject());
+                    @Override
+                    public void call(Subscriber<? super JSONObject> subscriber) {
+                        //查询返回账户信息
+                        try {
+                            PreparedStatement prestmt = conn.prepareStatement("SELECT * FROM user_info where id=?");
+                            prestmt.setString(1, s);
+                            ResultSet resultSet = prestmt.executeQuery();
+                            if (resultSet.next()) {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("id", resultSet.getString("id"));
+                                jsonObject.put("name", resultSet.getString("name"));
+                                jsonObject.put("nickname", resultSet.getString("nickname"));
+                                subscriber.onNext(jsonObject);
+                            } else {
+                                subscriber.onNext(new JSONObject());
+                            }
+                            subscriber.onCompleted();
+                            resultSet.close();
+                            prestmt.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            subscriber.onError(new Throwable("Server have something wrong!"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            subscriber.onError(new Throwable("Server have something wrong!"));
+                        }
                     }
-                    subscriber.onCompleted();
-                    resultSet.close();
-                    prestmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    subscriber.onError(new Throwable("Server have something wrong!"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    subscriber.onError(new Throwable("Server have something wrong!"));
-                }
-            }
-        })
+                })
         ).subscribe(new Subscriber<JSONObject>() {
             @Override
             public void onCompleted() {
@@ -108,7 +109,7 @@ public class LoginServlet extends BaseServlet {
             @Override
             public void onError(Throwable e) {
                 try {
-                    resp.getWriter().print(ResultHandler.Fail(-1,e.getMessage()));
+                    resp.getWriter().print(ResultHandler.Fail(-1, e.getMessage()));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -117,6 +118,10 @@ public class LoginServlet extends BaseServlet {
             @Override
             public void onNext(JSONObject jsonObject) {
                 try {
+                    Cookie cookie = new Cookie("id", jsonObject.optString("id"));
+                    cookie.setMaxAge(30000);
+                    cookieHashMap.put(jsonObject.optString("id"), cookie);
+                    resp.addCookie(cookie);
                     resp.getWriter().print(ResultHandler.Success(jsonObject));
                 } catch (IOException e) {
                     e.printStackTrace();

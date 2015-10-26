@@ -9,8 +9,9 @@ import java.io.IOException;
  * Created by <a href="http://www.jiechic.com" target="_blank">jiechic</a> on 15/9/29.
  */
 public class GoodsServlet extends BaseServlet {
+
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.getWriter().print("Hello world测试");
     }
 }
