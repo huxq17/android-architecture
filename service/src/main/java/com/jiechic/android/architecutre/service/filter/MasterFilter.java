@@ -18,11 +18,11 @@ public class MasterFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-            HttpServletRequest req = (HttpServletRequest)request;
-            System.out.println("拦截 URI="+req.getRequestURI());
-            request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            chain.doFilter(request, response);
+        HttpServletRequest req = (HttpServletRequest) request;
+        System.out.println("拦截 URI=" + req.getRequestURI());
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        chain.doFilter(request, response);
     }
 
     @Override

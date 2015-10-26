@@ -48,12 +48,11 @@ public class BaseServlet extends HttpServlet {
                             super.service(req, resp);
                             break;
                         }
-
                     }
                 }
             }
             if (!isLogin){
-                resp.getWriter().write(ResultHandler.Fail(-1,"Account is not login"));
+                resp.getWriter().write(ResultHandler.Fail(255,"Account is not login"));
             }
         }
     }
