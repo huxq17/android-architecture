@@ -70,4 +70,13 @@
         <servlet-name>userinfo</servlet-name>
         <url-pattern>/userinfo</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>updateuserinfo</servlet-name>
+        <servlet-class>com.jiechic.android.architecutre.service.servlet.UpdateUserInfoServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>updateuserinfo</servlet-name>
+        <url-pattern>/updateuserinfo</url-pattern>
+    </servlet-mapping>
 </web-app>

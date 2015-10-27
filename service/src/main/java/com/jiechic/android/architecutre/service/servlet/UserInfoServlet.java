@@ -97,25 +97,4 @@ public class UserInfoServlet extends BaseServlet {
             }
         });
     }
-
-    class Param {
-        private int goodId;
-        private int userId;
-
-        public int getGoodId() {
-            return goodId;
-        }
-
-        public void setGoodId(int goodId) {
-            this.goodId = goodId;
-        }
-
-        public int getUserId() {
-            return userId;
-        }
-
-        public void setUserId(int userId) {
-            this.userId = userId;
-        }
-    }
 }
