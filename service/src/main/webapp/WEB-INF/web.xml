@@ -61,4 +61,13 @@
         <servlet-name>good</servlet-name>
         <url-pattern>/good</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>userinfo</servlet-name>
+        <servlet-class>com.jiechic.android.architecutre.service.servlet.UserInfoServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>userinfo</servlet-name>
+        <url-pattern>/userinfo</url-pattern>
+    </servlet-mapping>
 </web-app>
