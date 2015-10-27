@@ -52,4 +52,13 @@
         <servlet-name>addgood</servlet-name>
         <url-pattern>/addgood</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>good</servlet-name>
+        <servlet-class>com.jiechic.android.architecutre.service.servlet.GoodServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>good</servlet-name>
+        <url-pattern>/good</url-pattern>
+    </servlet-mapping>
 </web-app>

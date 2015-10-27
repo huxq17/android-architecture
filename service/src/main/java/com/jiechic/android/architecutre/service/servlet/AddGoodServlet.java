@@ -92,6 +92,9 @@ public class AddGoodServlet extends BaseServlet {
                                   } else {
                                       try {
                                           onSale = Boolean.parseBoolean(param_onSale);
+                                          if ("1".equals(param_onSale)) {
+                                              onSale = true;
+                                          }
                                       } catch (NumberFormatException e) {
                                           subscriber.onError(new Throwable("param onSale must be Boolean"));
                                           return;
