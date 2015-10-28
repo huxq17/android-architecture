@@ -79,4 +79,13 @@
         <servlet-name>updateuserinfo</servlet-name>
         <url-pattern>/updateuserinfo</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>updategood</servlet-name>
+        <servlet-class>com.jiechic.android.architecutre.service.servlet.UpdateGoodServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>updategood</servlet-name>
+        <url-pattern>/updategood</url-pattern>
+    </servlet-mapping>
 </web-app>
